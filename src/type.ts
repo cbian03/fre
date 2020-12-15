@@ -26,7 +26,7 @@ export interface FreElement<P extends Attributes = any, T = string> {
   props: P
 }
 
-export type HookTpes = 'list' | 'effect' | 'layout'
+export type HookTypes = 'list' | 'effect' | 'layout'
 
 export interface IHook {
   list: IEffect[]
@@ -84,9 +84,8 @@ export interface PropsWithChildren {
 }
 
 export type ITaskCallback =
-  | ((time: number | boolean) => boolean)
-  | boolean
-  | null
+| ((time: boolean) => boolean)
+| null
 
 export interface ITask {
   callback?: ITaskCallback

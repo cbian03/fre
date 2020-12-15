@@ -1,5 +1,5 @@
 import { dispatchUpdate, isFn, getCurrentFiber } from './reconciler'
-import { DependencyList, Reducer, IFiber, Dispatch, SetStateAction, EffectCallback, HookTpes, RefObject, IEffect } from './type'
+import { DependencyList, Reducer, IFiber, Dispatch, SetStateAction, EffectCallback, HookTypes, RefObject, IEffect } from './type'
 let cursor = 0
 
 export const resetCursor = () => {
@@ -12,19 +12,12 @@ export const useState = <T>(initState: T): [T, Dispatch<SetStateAction<T>>] => {
 
 export const useReducer = <S, A>(reducer?: Reducer<S, A>, initState?: S): [S, Dispatch<A>] => {
   const [hook, current]: [any, IFiber] = getHook<S>(cursor++)
-  if (hook[2] & (1 << 2)) {
-    hook[0] = initState
-    hook[2] = 0
-  } else if (hook[2] & (1 << 1)) {
-    hook[2] = 0
-  } else {
-    hook[0] = isFn(hook[1]) ? hook[1](hook[0]) : hook[1] || initState
-  }
+  hook[0] = isFn(hook[1]) ? hook[1](hook[0]) : hook.length ? hook[1] : initState
   return [
     hook[0] as S,
     (action: A | Dispatch<A>) => {
       hook[1] = reducer ? reducer(hook[0], action as A) : action
-      hook[3] = reducer && (action as any).type[0] === '*'
+      hook[2] = reducer && (action as any).type[0] === '*' ? 0b1100 : 0b1000
       dispatchUpdate(current)
     },
   ]
@@ -38,7 +31,7 @@ export const useLayout = (cb: EffectCallback, deps?: DependencyList): void => {
   return effectImpl(cb, deps!, 'layout')
 }
 
-const effectImpl = (cb: EffectCallback, deps: DependencyList, key: HookTpes): void => {
+const effectImpl = (cb: EffectCallback, deps: DependencyList, key: HookTypes): void => {
   const [hook, current] = getHook(cursor++)
   if (isChanged(hook[1], deps)) {
     hook[0] = useCallback(cb, deps)
